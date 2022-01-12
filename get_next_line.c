@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include "get_next_line.h"
-
 char    *ft_find_line(char *s1)
 {
     t_vrbls vb;
@@ -8,6 +7,8 @@ char    *ft_find_line(char *s1)
 
     vb.i = 0;
     vb.j = -1;
+     if(!s1)
+        return(NULL);
     while(s1[vb.i] != '\0' && s1[vb.i] != '\n')
         vb.i++;
   while(s1[vb.i] == '\n')
@@ -18,6 +19,12 @@ char    *ft_find_line(char *s1)
     while(++vb.j < vb.i)
         ln[vb.j] = s1[vb.j];
     ln[vb.j] ='\0';
+    // if(s1[0] == '\0')
+    // {
+    //     free(s1);
+    //     return(NULL);
+    // }
+
   //free(s1);
     return(ln);
 }
@@ -26,8 +33,9 @@ char *ft_read_line(int fd, char *str)
 {
     t_vrbls vb;
     char    *buf;
-
-    buf = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
+    // if(!str)
+    //     str[0] = 0;
+    buf = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 2));
     if (!buf)
         return(NULL);
     vb.i = 1;
@@ -35,8 +43,20 @@ char *ft_read_line(int fd, char *str)
     {
         vb.i = read(fd, buf, BUFFER_SIZE);
         printf("read : %d\n", vb.i);
+        if (vb.i == -1)
+        {
+            free(buf);
+            return(NULL);
+        }
         buf[vb.i] = '\0';
+        if(vb.i == 0)
+            break;
         str = ft_strjoin(str, buf);
+        if(str[0] == '\0')
+        {
+            free(str);
+            return(NULL);
+        }
     }
     free(buf);
     return(str);
@@ -46,60 +66,61 @@ char    *ft_rest(char *str)
     t_vrbls vb;
 
    vb.i = 0;
+    if(!str)
+        return(NULL);
    while(str[vb.i] != '\0' && str[vb.i] != '\n')
        vb.i++;
+    // if(str == NULL)
+    //     {
+    //         free(str);
+    //         return(NULL);
+    //     }
     while(str[vb.i] == '\n')
         vb.i++;
     vb.len = ft_strlen(str);
-    char *rest = (char *)malloc(sizeof(char) * ((vb.len - vb.i) +1));
+    char *rest = (char *)malloc(sizeof(char) * ((vb.len - vb.i) + 1));
     if(!rest)
         return(NULL);
     vb.j = 0;
     while(str[vb.i])
         rest[vb.j++] = str[vb.i++];
     rest[vb.j] ='\0';
+    free(str);
     return(rest);
 }
 
 char    *get_next_line(fd)
 {
     static char         *str;
-    char        *line;
+    char                *line;
 
-    if ( fd < 0 || BUFFER_SIZE <= 0 )
+    if (fd < 0 || BUFFER_SIZE <= 0 )
             return(NULL);
     str = ft_read_line(fd, str);
+    if (str == NULL)
+        return(NULL);
     line = ft_find_line(str);
     str = ft_rest(str);
     return(line);
 }
-// #include <stdio.h>
-// #include <fcntl.h>
-// int main()
-// {
-//     int fd;
-//     //char *str;
-//     fd = open("file.txt", O_RDONLY);
-//     // str = get_next_line(fd);
-//     //  while(str)
-//     //  {
-//     //   str = get_next_line(fd);
-//     //        printf("%s", str);
-//     //  }
-    
-//     //  str = get_next_line(fd);
-//     //   printf("%s", str);
-//     //     str = get_next_line(fd);
-//     //     printf("%s", str);
-//     //    str = get_next_line(fd);
-//     //      printf("%s", str);
-//     //     str = get_next_line(fd);
-//     //    printf("%s", str);
-//     printf("%s", get_next_line(fd));
-//     printf("%s", get_next_line(fd));
-//     printf("%s", get_next_line(fd));
-//     printf("%s", get_next_line(fd));
-//     // printf("%s", get_next_line(fd));
-     
-  
-// }
+//  int main()
+//  {
+//      char *str;
+//      int fd;
+
+//      fd = open("file.txt", O_RDONLY);
+//      str = get_next_line(fd);
+//      printf("%s", str);
+//      str = get_next_line(fd);
+//      printf("%s", str);
+//      str = get_next_line(fd);
+//      printf("%s", str);
+//      str = get_next_line(fd);
+//      printf("%s", str);
+//       str = get_next_line(fd);
+//      printf("%s", str);
+//       str = get_next_line(fd);
+//      printf("%s", str);
+//       str = get_next_line(fd);
+//      printf("%s", str);
+//  }
