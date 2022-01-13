@@ -7,56 +7,45 @@ char    *ft_find_line(char *s1)
 
     vb.i = 0;
     vb.j = -1;
-     if(!s1)
+    if(!s1)
+        return(NULL);
+    if(s1[0] == '\0')
         return(NULL);
     while(s1[vb.i] != '\0' && s1[vb.i] != '\n')
         vb.i++;
-  while(s1[vb.i] == '\n')
-        vb.i++;
-    ln = (char*)malloc(sizeof(char) * (vb.i + 1));
+    if (s1[vb.i] == '\n')
+        vb.i = vb.i + 1;
+    ln = (char *)malloc(sizeof(char) * (vb.i + 1));
     if (!ln)
         return(NULL);
     while(++vb.j < vb.i)
-        ln[vb.j] = s1[vb.j];
+         ln[vb.j] = s1[vb.j];
     ln[vb.j] ='\0';
-    // if(s1[0] == '\0')
-    // {
-    //     free(s1);
-    //     return(NULL);
-    // }
-
-  //free(s1);
     return(ln);
 }
 
-char *ft_read_line(int fd, char *str)
+char *ft_read_line(char *str, int fd)
 {
-    t_vrbls vb;
+     t_vrbls vb;
     char    *buf;
-    // if(!str)
-    //     str[0] = 0;
-    buf = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 2));
+
+    vb.i = 1;
+    buf = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
     if (!buf)
         return(NULL);
-    vb.i = 1;
     while( vb.i != 0 && ft_strchr(str) == 0)
     {
         vb.i = read(fd, buf, BUFFER_SIZE);
-        printf("read : %d\n", vb.i);
-        if (vb.i == -1)
+        if(vb.i == 0)
+                break ;
+        if (vb.i < 0)
         {
             free(buf);
             return(NULL);
         }
         buf[vb.i] = '\0';
-        if(vb.i == 0)
-            break;
-        str = ft_strjoin(str, buf);
-        if(str[0] == '\0')
-        {
-            free(str);
-            return(NULL);
-        }
+        if(buf)
+            str = ft_strjoin(str, buf);
     }
     free(buf);
     return(str);
@@ -64,29 +53,34 @@ char *ft_read_line(int fd, char *str)
 char    *ft_rest(char *str)
 {
     t_vrbls vb;
+    char *rest;
 
-   vb.i = 0;
+    vb.i = 0;
+    vb.j = 0;
     if(!str)
         return(NULL);
-   while(str[vb.i] != '\0' && str[vb.i] != '\n')
-       vb.i++;
-    // if(str == NULL)
-    //     {
-    //         free(str);
-    //         return(NULL);
-    //     }
-    while(str[vb.i] == '\n')
+    if(str[vb.i] == '\0')
+        return(NULL);
+    while(str[vb.i] != '\0' && str[vb.i] != '\n')
         vb.i++;
+    if(str[vb.i] == '\n')
+        vb.i = vb.i + 1;
     vb.len = ft_strlen(str);
-    char *rest = (char *)malloc(sizeof(char) * ((vb.len - vb.i) + 1));
+    rest = (char *)malloc(sizeof(char) * ((vb.len - vb.i) + 1));
     if(!rest)
         return(NULL);
-    vb.j = 0;
     while(str[vb.i])
         rest[vb.j++] = str[vb.i++];
     rest[vb.j] ='\0';
+    if (rest[0] == '\0')
+	   	free(str);
+     if (rest[0] == '\0')
+	{
+       	free(rest);
+        return NULL;
+    }
     free(str);
-    return(rest);
+    return(rest);   
 }
 
 char    *get_next_line(fd)
@@ -96,23 +90,18 @@ char    *get_next_line(fd)
 
     if (fd < 0 || BUFFER_SIZE <= 0 )
             return(NULL);
-    str = ft_read_line(fd, str);
-    if (str == NULL)
-        return(NULL);
+    str = ft_read_line(str, fd);
+     if (str == NULL)
+         return(NULL);
     line = ft_find_line(str);
     str = ft_rest(str);
     return(line);
 }
-//  int main()
-//  {
-//      char *str;
-//      int fd;
 
-//      fd = open("file.txt", O_RDONLY);
-//      str = get_next_line(fd);
-//      printf("%s", str);
-//      str = get_next_line(fd);
-//      printf("%s", str);
+// int main(void)
+// {
+//     char *str;
+//     int fd = open("multiple_nlx5", O_RDONLY);
 //      str = get_next_line(fd);
 //      printf("%s", str);
 //      str = get_next_line(fd);
@@ -121,6 +110,6 @@ char    *get_next_line(fd)
 //      printf("%s", str);
 //       str = get_next_line(fd);
 //      printf("%s", str);
-//       str = get_next_line(fd);
+//        str = get_next_line(fd);
 //      printf("%s", str);
-//  }
+// }
